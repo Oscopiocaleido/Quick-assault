@@ -5,13 +5,6 @@
 
 using namespace std;
 
-struct data_file{
-    double E = 0; //energia
-    int NI = 0, NO = 0; //inicio y objetivo
-    int CV = 0, CA = 0; //vertices y aristas
-
-};
-
 struct vertices{
     int ID = 0;
     double X = 0.0, Y = 0.0, Z = 0.0;
@@ -20,6 +13,15 @@ struct vertices{
 struct aristas{
     int ID_1 = 0, ID_2 = 0;
     double U = 0.0;
+};
+
+struct data_file{
+    double E = 0; //energia
+    int NI = 0, NO = 0; //inicio y objetivo
+    int CV = 0, CA = 0; //vertices y aristas
+
+    vertices* listaVertices = NULL;
+    aristas* listaAristas = NULL;
 };
 
 void arch(string file, data_file &data){
@@ -33,6 +35,21 @@ void arch(string file, data_file &data){
     arch >> data.CV;
     arch >> data.CA;
 
+    data.listaVertices = new vertices[data.CV];
+    data.listaAristas = new aristas[data.CA];
+
+    for(int i = 0; i < data.CV; i++){
+        arch >> data.listaVertices[i].ID;
+        arch >> data.listaVertices[i].X;
+        arch >> data.listaVertices[i].Y;
+        arch >> data.listaVertices[i].Z;
+    }
+
+    for(int i = 0; i < data.CA; i++){
+        arch >> data.listaAristas[i].ID_1;
+        arch >> data.listaAristas[i].ID_2;
+        arch >> data.listaAristas[i].U;
+    }
 }
 
 void ensamblar(int N, data_file &data){
@@ -50,5 +67,7 @@ int main(){
     cin >> N;
 
     ensamblar(N, data);
+
+
     return 0;
 }
