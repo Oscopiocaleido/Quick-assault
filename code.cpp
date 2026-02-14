@@ -9,6 +9,7 @@ class vertices{
     int ID = 0;
     double X = 0.0, Y = 0.0, Z = 0.0;
     public:
+    vertices(){}
     vertices(int id, double x, double y, double z){
         this -> ID = id;
         this -> X = x;
@@ -53,13 +54,45 @@ class grafo{
         arch >> CV;
         arch >> CA;
 
+        NI -= 1;
+        NO -= 1;
+
         listaVertices = new vertices[CV];
         matrizAdyacencia = new double*[CV];
 
         for(int i = 0; i < CV; i++){
             matrizAdyacencia[i] = new double[CV];
-
+            for(int j = 0; j < CV; j++){
+                matrizAdyacencia[i][j] = -1.0;
+            }
         }
+
+        int idTemp = 0;
+        double xTemp = 0.0, yTemp = 0.0, zTemp = 0.0;
+
+        for(int i = 0; i < CV; i++){
+            arch >> idTemp;
+            arch >> xTemp;
+            arch >> yTemp;
+            arch >> zTemp;
+
+            listaVertices[i] = vertices(idTemp, xTemp, yTemp, zTemp);
+        }
+
+        int ID1 = 0, ID2 = 0;
+        double U = 0.0;
+
+        for(int i = 0; i < CA; i++){
+            arch >> ID1; // nodo 1
+            arch >> ID2; // nodo 2 ambos conectados
+            arch >> U; // rozamiento
+
+
+            matrizAdyacencia[ID1 - 1][ID2 - 1] = U;
+        }
+    }
+    void calculos(){
+
     }
 };
 
