@@ -5,69 +5,72 @@
 
 using namespace std;
 
-struct vertices{
+class vertices{
     int ID = 0;
     double X = 0.0, Y = 0.0, Z = 0.0;
-};
-
-struct aristas{
-    int ID_1 = 0, ID_2 = 0;
-    double U = 0.0;
-};
-
-struct data_file{
-    double E = 0; //energia
-    int NI = 0, NO = 0; //inicio y objetivo
-    int CV = 0, CA = 0; //vertices y aristas
-
-    vertices* listaVertices = NULL;
-    aristas* listaAristas = NULL;
-};
-
-void arch(string file, data_file &data){
-    ifstream arch;
-    arch.open(file.c_str());
-    if(!arch.is_open()) return;
-
-    arch >> data.E;
-    arch >> data.NI;
-    arch >> data.NO;
-    arch >> data.CV;
-    arch >> data.CA;
-
-    data.listaVertices = new vertices[data.CV];
-    data.listaAristas = new aristas[data.CA];
-
-    for(int i = 0; i < data.CV; i++){
-        arch >> data.listaVertices[i].ID;
-        arch >> data.listaVertices[i].X;
-        arch >> data.listaVertices[i].Y;
-        arch >> data.listaVertices[i].Z;
+    public:
+    vertices(int id, double x, double y, double z){
+        this -> ID = id;
+        this -> X = x;
+        this -> Y = y;
+        this -> Z = z;
     }
-
-    for(int i = 0; i < data.CA; i++){
-        arch >> data.listaAristas[i].ID_1;
-        arch >> data.listaAristas[i].ID_2;
-        arch >> data.listaAristas[i].U;
+    int getID(){
+        return ID;
     }
-}
+    double getX(){
+        return X;
+    }
+    double getY(){
+        return Y;
+    }
+    double getZ(){
+        return Z;
+    }
+};
 
-void ensamblar(int N, data_file &data){
-    string file = "data";
-    file = file + to_string(N);
-    file = file + ".in";
+class grafo{
+    int CV = 0, CA = 0; // cantidad de vertices y aristas
+    double E = 0; // energia inicial
+    int NI = 0, NO = 0; // nodo de inicio y nodo objetivo
 
-    arch(file, data);
-}
+    vertices* listaVertices = nullptr;
+    double** matrizAdyacencia = nullptr;
+
+    public:
+    grafo(int n){
+        string file = "data";
+        file = file + to_string(n);
+        file = file + ".in";
+
+        ifstream arch;
+        arch.open(file, ios::in); // los videos de Francisco AYP habla sobre el uso de ios::in
+        if(!arch.is_open()) return;
+
+        arch >> E;
+        arch >> NI;
+        arch >> NO;
+        arch >> CV;
+        arch >> CA;
+
+        listaVertices = new vertices[CV];
+        matrizAdyacencia = new double*[CV];
+
+        for(int i = 0; i < CV; i++){
+            matrizAdyacencia[i] = new double[CV];
+
+        }
+    }
+};
 
 int main(){
     int N = 0; //N de archivo
-    data_file data;
+    int m = 10; //masa
+    double g = 9.81; //gravedad
 
     cin >> N;
 
-    ensamblar(N, data);
-
+    grafo Grafo(N);
 
     return 0;
 }
