@@ -1,3 +1,4 @@
+#include <cmath>
 #include <iostream>
 #include <fstream>
 #include <math.h>
@@ -91,15 +92,32 @@ class grafo{
             matrizAdyacencia[ID1 - 1][ID2 - 1] = U;
         }
     }
-    void calculos(){
+    double calcularEnergia(int idOrigen, int idDestino, double energiaActual){
+        int m = 10; //masa
+        double g = 9.81; //gravedad
 
+        if(matrizAdyacencia[idOrigen][idDestino] == -1) return -999999;
+
+        double friccion = 0.0;
+        friccion = matrizAdyacencia[idOrigen][idDestino];
+
+        double distanciaEspacial = 0.0;
+
+        distanciaEspacial = pow((listaVertices[idOrigen].getX() - listaVertices[idDestino].getX()), 2) + pow((listaVertices[idOrigen].getY() - listaVertices[idDestino].getY()), 2) + pow((listaVertices[idOrigen].getZ() - listaVertices[idDestino].getZ()), 2);
+        distanciaEspacial = sqrt(distanciaEspacial);
+
+        double energiaGravitacional = 0.0;
+        energiaGravitacional = m * g * (listaVertices[idOrigen].getZ() - listaVertices[idDestino].getZ());
+
+        double trabajoFriccion = 0.0;
+        trabajoFriccion = friccion * m * g * distanciaEspacial;
+
+        return (energiaActual + energiaGravitacional - trabajoFriccion);
     }
 };
 
 int main(){
     int N = 0; //N de archivo
-    int m = 10; //masa
-    double g = 9.81; //gravedad
 
     cin >> N;
 
