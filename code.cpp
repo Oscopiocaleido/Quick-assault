@@ -39,6 +39,15 @@ class grafo{
     vertices* listaVertices = nullptr;
     double** matrizAdyacencia = nullptr;
 
+    bool* visitados = nullptr;
+    int* caminoActual = nullptr;
+    int pasoActual = 0;
+
+    double mejorEnergia = -1.0;
+    int* mejorCamino = nullptr;
+    int longitudMejorCamino = 0;
+    int mejorCambiosAltura = 99999;
+
     public:
     grafo(int n){
         string file = "data";
@@ -96,7 +105,7 @@ class grafo{
         int m = 10; //masa
         double g = 9.81; //gravedad
 
-        if(matrizAdyacencia[idOrigen][idDestino] == -1) return -999999;
+        if(matrizAdyacencia[idOrigen][idDestino] == -1) return -999999; // retornar un numero exagerado para marcar un error
 
         double friccion = 0.0;
         friccion = matrizAdyacencia[idOrigen][idDestino];
@@ -114,6 +123,108 @@ class grafo{
 
         return (energiaActual + energiaGravitacional - trabajoFriccion);
     }
+    void internetExplorer(int nodoActual, double energiaActual, int cambiosAltura){
+        caminoActual[pasoActual] = nodoActual;
+        pasoActual++;
+        visitados[nodoActual] = true;
+
+        if(nodoActual == NO){
+            bool mejorCombinacion = false;
+
+            if(energiaActual > mejorEnergia){
+                mejorCombinacion = true;
+            }
+            else if(abs(energiaActual - mejorEnergia) < 0.0001){
+                if(pasoActual < longitudMejorCamino){
+                    mejorCombinacion = true;
+                }
+                else if(pasoActual == longitudMejorCamino){
+                    if(cambiosAltura < mejorCambiosAltura) mejorCombinacion = true;
+                }
+            }
+
+            if(mejorCombinacion){
+                mejorEnergia = energiaActual;
+                longitudMejorCamino = pasoActual;
+                mejorCambiosAltura = cambiosAltura;
+
+                for(int i = 0; i < pasoActual; i++){
+                    mejorCamino [i] = caminoActual [i];
+                }
+            }
+
+            visitados[nodoActual] = false;
+            pasoActual --;
+            return;
+        }
+
+        for(int i = 0; i < CV; i++){
+            if(matrizAdyacencia[nodoActual][i] != -1){
+                if(!visitados[i]){
+                    double energiaFutura = calcularEnergia(nodoActual, i, energiaActual);
+
+                    if(energiaFutura >= 0){
+                        int nuevosCambios = cambiosAltura;
+                        if(listaVertices[nodoActual].getZ() != listaVertices[i].getZ()){
+                            nuevosCambios++;
+                        }
+                        internetExplorer(i, energiaFutura, nuevosCambios);
+                    }
+                }
+            }
+        }
+        visitados[nodoActual] = false;
+        pasoActual --;
+    }
+    void buscarCaminos(int N){
+        visitados = new bool [CV];
+        caminoActual = new int [CV];
+        mejorCamino = new int [CV];
+
+        for(int i = 0; i < CV; i++){
+            visitados[i] = false;
+            caminoActual[i] = 0;
+        }
+
+        pasoActual = 0;
+        mejorEnergia = -1.0;
+
+        internetExplorer(NI, E, 0);
+
+        if(mejorEnergia == -1.0){
+            generarReporte(N);
+        }else{
+            generarReporte(N);
+        }
+    }
+    void generarReporte(int n){
+        string fileOut = "path" + to_string(n) + ".out";
+        ofstream out(fileOut);
+
+        if(!out.is_open()) return;
+        out.setf(ios::fixed);
+        out.precision(2);
+
+        if(mejorEnergia == -1.0){
+            out<< "-1\n";
+        }else{
+            out<< mejorEnergia << "\n";
+
+            double energiaPaso = E;
+
+            for(int i = 0; i < longitudMejorCamino - 1; i++){
+                int origen = mejorCamino[i];
+                int destino = mejorCamino[i + 1];
+
+                double energiaSiguiente = calcularEnergia(origen, destino, energiaPaso);
+
+                out<< origen + 1 << " " << destino + 1 << " " << energiaPaso << " " << energiaSiguiente << "\n";
+
+                energiaPaso = energiaSiguiente;
+            }
+        }
+        out.close();
+    }
 };
 
 int main(){
@@ -122,6 +233,7 @@ int main(){
     cin >> N;
 
     grafo Grafo(N);
+    Grafo.buscarCaminos(N);
 
     return 0;
 }
